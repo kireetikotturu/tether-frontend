@@ -1,9 +1,11 @@
-// ✅ Use environment variable for dynamic backend URL
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+const API_URL =
+  import.meta.env.PROD
+    ? 'https://tether-backend.onrender.com/api'
+    : 'http://localhost:5000/api';
 
 export async function apiFetch(path, opts = {}) {
   const token = localStorage.getItem('token');
-  console.log("apiFetch called with:", path, opts); // ✅ Useful for debug
+  console.log("apiFetch called with:", path, opts);
 
   const headers = {
     'Content-Type': 'application/json',
@@ -12,7 +14,18 @@ export async function apiFetch(path, opts = {}) {
   };
 
   const res = await fetch(`${API_URL}${path}`, { ...opts, headers });
-  if (!res.ok) throw new Error((await res.json()).msg || 'API error');
+
+  if (!res.ok) {
+    const text = await res.text();
+    let msg = 'API error';
+    try {
+      msg = JSON.parse(text).msg;
+    } catch (err) {
+      msg = text;
+    }
+    throw new Error(msg);
+  }
+
   return res.json();
 }
 
