@@ -4,7 +4,7 @@ import { apiFetch } from '../api/api';
 export default function Register({ setPage, setUser }) {
   const [form, setForm] = useState({ email: '', phone: '', password: '', referralCode: '' });
   const [otp, setOtp] = useState('');
-  const [otpStep, setOtpStep] = useState(false);
+  const [otpStep, setOtpStep] = useState(false); // Show OTP input after first step
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
 
@@ -15,14 +15,15 @@ export default function Register({ setPage, setUser }) {
     setError('');
     setInfo('');
     try {
-      const res = await apiFetch('/api/auth/register', {
+      // ✅ Fix: removed duplicate "/api"
+      const res = await apiFetch('/auth/register', {
         method: 'POST',
         body: JSON.stringify(form)
       });
       setOtpStep(true);
       setInfo('✅ OTP sent to your email. Enter it below to complete registration.');
     } catch (err) {
-      setError(err.message || '❌ Register failed');
+      setError(err.message || '❌ Registration failed');
     }
   };
 
@@ -31,17 +32,16 @@ export default function Register({ setPage, setUser }) {
     setError('');
     setInfo('');
     try {
-      const res = await apiFetch('/api/auth/verify-otp', {
+      // ✅ Fix: removed duplicate "/api"
+      const res = await apiFetch('/auth/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ email: form.email, otp })
       });
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
-      if (setUser) setUser(res.user);
-      setInfo("✅ Registration successful! Redirecting to dashboard...");
-      setTimeout(() => {
-        if (setPage) setPage('dashboard');
-      }, 1000); // 1-second delay for user to see message
+      if (setUser) setUser(res.user);      // ✅ Safe call
+      if (setPage) setPage('dashboard');   // ✅ Safe call
+      setInfo('🎉 Registration successful!');
     } catch (err) {
       setError(err.message || '❌ OTP verification failed');
     }
@@ -114,8 +114,10 @@ export default function Register({ setPage, setUser }) {
           </button>
         </form>
       )}
+
       {info && <div className="mt-3 text-green-400 text-center">{info}</div>}
       {error && <div className="mt-3 text-red-400 text-center">{error}</div>}
+
       <div className="mt-3 text-center">
         <span className="text-gray-400">Already have an account?</span>
         <button className="ml-2 text-primary underline" onClick={() => setPage('login')}>
