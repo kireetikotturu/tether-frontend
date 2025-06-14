@@ -9,7 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Deposit from './pages/Deposit';
 import Withdraw from './pages/Withdraw';
-import AdminPanel from './pages/Adminpanel';
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 
