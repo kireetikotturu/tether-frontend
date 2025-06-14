@@ -28,23 +28,23 @@ export default function Register({ setPage, setUser }) {
   };
 
   const handleOtp = async e => {
-    e.preventDefault();
-    setError('');
-    setInfo('');
-    try {
-      // Step 2: Verify OTP
-      const res = await apiFetch('/auth/verify-otp', {
-        method: 'POST',
-        body: JSON.stringify({ email: form.email, otp })
-      });
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('user', JSON.stringify(res.user));
-      setUser(res.user);
-      setPage('dashboard');
-    } catch (err) {
-      setError(err.message || 'OTP verification failed');
-    }
-  };
+  e.preventDefault();
+  setError('');
+  setInfo('');
+  try {
+    const res = await apiFetch('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email: form.email, otp })
+    });
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    if (setUser) setUser(res.user);      // ✅ Safe call
+    if (setPage) setPage('dashboard');   // ✅ Safe call
+  } catch (err) {
+    setError(err.message || 'OTP verification failed');
+  }
+};
+
 
   return (
     <div className="max-w-xs mx-auto bg-darkcard p-5 rounded-xl shadow mt-10">
